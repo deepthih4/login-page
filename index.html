@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+<title>Login & Signup</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    font-family:Inter,Arial,sans-serif;
+    background:
+        radial-gradient(circle at top left,#dff7f0 0,transparent 35%),
+        radial-gradient(circle at bottom right,#e8edff 0,transparent 35%),
+        #f7f9fc;
+    color:#16211c;
+}
+
+.auth-card{
+    width:100%;
+    max-width:460px;
+    background:#fff;
+    border-radius:28px;
+    padding:34px;
+    box-shadow:0 22px 70px rgba(29,55,45,.12);
+}
+
+.logo{
+    width:60px;
+    height:60px;
+    border-radius:19px;
+    margin:0 auto 18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#16a673,#0f7f5b);
+    color:#fff;
+    font-size:24px;
+    font-weight:800;
+    box-shadow:0 12px 26px rgba(22,166,115,.24);
+}
+
+.title{
+    text-align:center;
+    font-size:29px;
+    font-weight:800;
+    margin-bottom:7px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#7a8982;
+    font-size:14px;
+    line-height:1.5;
+    margin-bottom:26px;
+}
+
+.tabs{
+    display:flex;
+    background:#eef6f2;
+    padding:5px;
+    border-radius:15px;
+    margin-bottom:25px;
+}
+
+.tab{
+    flex:1;
+    height:44px;
+    border:0;
+    border-radius:11px;
+    background:transparent;
+    color:#6f8279;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.tab.active{
+    background:#fff;
+    color:#12845f;
+    box-shadow:0 3px 12px rgba(0,0,0,.06);
+}
+
+.form-group{
+    margin-bottom:16px;
+}
+
+.form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:13px;
+}
+
+.label{
+    display:block;
+    margin:0 0 8px 2px;
+    font-size:13px;
+    font-weight:700;
+    color:#33453c;
+}
+
+.input{
+    width:100%;
+    height:54px;
+    border:1px solid #dce8e2;
+    background:#f9fbfa;
+    border-radius:14px;
+    padding:0 15px;
+    font-size:15px;
+    outline:none;
+    transition:.2s;
+}
+
+.input:focus{
+    background:#fff;
+    border-color:#19a673;
+    box-shadow:0 0 0 3px rgba(25,166,115,.10);
+}
+
+.phone-wrapper{
+    height:54px;
+    display:flex;
+    align-items:center;
+    border:1px solid #dce8e2;
+    background:#f9fbfa;
+    border-radius:14px;
+    overflow:hidden;
+}
+
+.phone-wrapper:focus-within{
+    border-color:#19a673;
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(25,166,115,.10);
+}
+
+.country{
+    height:100%;
+    display:flex;
+    align-items:center;
+    padding:0 13px;
+    border-right:1px solid #e4ece8;
+    color:#4e6359;
+    font-size:14px;
+    font-weight:700;
+}
+
+.phone-input{
+    flex:1;
+    min-width:0;
+    height:100%;
+    border:0;
+    outline:none;
+    background:transparent;
+    padding:0 13px;
+    font-size:15px;
+}
+
+.password-box{
+    position:relative;
+}
+
+.password-box .input{
+    padding-right:64px;
+}
+
+.show-pass{
+    position:absolute;
+    right:13px;
+    top:50%;
+    transform:translateY(-50%);
+    border:0;
+    background:transparent;
+    color:#13845f;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.password-hint{
+    margin-top:7px;
+    font-size:11px;
+    color:#89958f;
+}
+
+.main-btn{
+    width:100%;
+    height:55px;
+    border:0;
+    border-radius:14px;
+    background:linear-gradient(135deg,#18a874,#0e805b);
+    color:#fff;
+    font-size:15px;
+    font-weight:750;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    box-shadow:0 10px 24px rgba(16,137,95,.18);
+}
+
+.main-btn:active{
+    transform:scale(.985);
+}
+
+.main-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+.secondary-btn{
+    width:100%;
+    height:52px;
+    border:1px solid #cae3d8;
+    border-radius:14px;
+    background:#f5fbf8;
+    color:#0e805b;
+    font-size:14px;
+    font-weight:750;
+    cursor:pointer;
+    margin-top:12px;
+}
+
+.divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:24px 0;
+    font-size:11px;
+    color:#9aa69f;
+}
+
+.divider::before,
+.divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:#e5ece8;
+}
+
+.google-btn{
+    width:100%;
+    height:54px;
+    border:1px solid #dde6e1;
+    border-radius:14px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.google-btn svg{
+    width:20px;
+    height:20px;
+}
+
+.message{
+    display:none;
+    margin-top:15px;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:13px;
+    line-height:1.45;
+}
+
+.message.error{
+    display:block;
+    background:#fff1f1;
+    color:#bd2a2a;
+}
+
+.message.success{
+    display:block;
+    background:#ebfaf3;
+    color:#14724f;
+}
+
+.loader{
+    display:none;
+    width:18px;
+    height:18px;
+    border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:spin .65s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg);}
+}
+
+#otpSection{
+    display:none;
+}
+
+.otp-head{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.otp-icon{
+    width:56px;
+    height:56px;
+    border-radius:17px;
+    background:#ebf8f2;
+    color:#12845f;
+    margin:0 auto 13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+
+.otp-title{
+    font-size:21px;
+    font-weight:800;
+    margin-bottom:6px;
+}
+
+.otp-desc{
+    color:#7e8d85;
+    font-size:13px;
+    line-height:1.5;
+}
+
+.otp-email{
+    font-weight:800;
+    color:#23372d;
+}
+
+.otp-input{
+    text-align:center;
+    font-size:23px;
+    font-weight:800;
+    letter-spacing:9px;
+    padding-left:24px;
+}
+
+.resend-area{
+    text-align:center;
+    margin-top:17px;
+    color:#829189;
+    font-size:13px;
+}
+
+.resend-btn{
+    border:0;
+    background:none;
+    color:#12845f;
+    font-size:13px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.change-email{
+    display:block;
+    margin:16px auto 0;
+    border:0;
+    background:transparent;
+    color:#73837b;
+    text-decoration:underline;
+    cursor:pointer;
+}
+
+.terms{
+    text-align:center;
+    margin-top:20px;
+    font-size:11px;
+    color:#a0aaa5;
+    line-height:1.6;
+}
+
+@media(max-width:520px){
+    body{
+        padding:0;
+        background:#fff;
+        align-items:flex-start;
+    }
+
+    .auth-card{
+        min-height:100vh;
+        max-width:none;
+        border-radius:0;
+        box-shadow:none;
+        padding:42px 23px 30px;
+    }
+
+    .form-row{
+        grid-template-columns:1fr;
+        gap:0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="auth-card">
+
+    <div class="logo">A</div>
+
+    <h1 class="title" id="mainTitle">
+        Welcome back
+    </h1>
+
+    <p class="subtitle" id="subtitle">
+        Login to continue to your account
+    </p>
+
+    <div class="tabs" id="tabs">
+        <button
+            class="tab active"
+            id="loginTab"
+            onclick="switchMode('login')"
+        >
+            Login
+        </button>
+
+        <button
+            class="tab"
+            id="signupTab"
+            onclick="switchMode('signup')"
+        >
+            Sign Up
+        </button>
+    </div>
+
+    <!-- MAIN FORM -->
+    <div id="mainForm">
+
+        <!-- SIGNUP EXTRA DETAILS -->
+        <div id="signupFields" style="display:none;">
+
+            <div class="form-group">
+                <label class="label">Full Name</label>
+                <input
+                    id="nameInput"
+                    class="input"
+                    type="text"
+                    placeholder="Enter your full name"
+                >
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label class="label">Mobile Number</label>
+
+                    <div class="phone-wrapper">
+                        <div class="country">+91</div>
+
+                        <input
+                            id="mobileInput"
+                            class="phone-input"
+                            type="tel"
+                            maxlength="10"
+                            inputmode="numeric"
+                            placeholder="9876543210"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">City</label>
+
+                    <input
+                        id="cityInput"
+                        class="input"
+                        type="text"
+                        placeholder="Your city"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group">
+            <label class="label">
+                Email Address
+            </label>
+
+            <input
+                id="emailInput"
+                class="input"
+                type="email"
+                placeholder="example@gmail.com"
+                autocomplete="email"
+            >
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="form-group">
+
+            <label class="label">
+                Password
+            </label>
+
+            <div class="password-box">
+
+                <input
+                    id="passwordInput"
+                    class="input"
+                    type="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                >
+
+                <button
+                    type="button"
+                    class="show-pass"
+                    onclick="togglePassword('passwordInput',this)"
+                >
+                    SHOW
+                </button>
+
+            </div>
+
+            <div
+                id="passwordHint"
+                class="password-hint"
+                style="display:none;"
+            >
+                Use at least 8 characters.
+            </div>
+
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div
+            class="form-group"
+            id="confirmPasswordGroup"
+            style="display:none;"
+        >
+
+            <label class="label">
+                Confirm Password
+            </label>
+
+            <div class="password-box">
+
+                <input
+                    id="confirmPasswordInput"
+                    class="input"
+                    type="password"
+                    placeholder="Enter password again"
+                    autocomplete="new-password"
+                >
+
+                <button
+                    type="button"
+                    class="show-pass"
+                    onclick="togglePassword('confirmPasswordInput',this)"
+                >
+                    SHOW
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- LOGIN/SIGNUP BUTTON -->
+        <button
+            id="mainBtn"
+            class="main-btn"
+            onclick="submitForm()"
+        >
+            <span id="mainBtnText">
+                Login
+            </span>
+
+            <span
+                class="loader"
+                id="mainLoader"
+            ></span>
+        </button>
+
+        <!-- OTP LOGIN BUTTON -->
+        <button
+            id="otpLoginBtn"
+            class="secondary-btn"
+            onclick="sendLoginOTP()"
+        >
+            Login with Email OTP
+        </button>
+
+    </div>
+
+    <!-- OTP SECTION -->
+    <div id="otpSection">
+
+        <div class="otp-head">
+
+            <div class="otp-icon">
+                ✉
+            </div>
+
+            <div class="otp-title">
+                Verify your email
+            </div>
+
+            <div class="otp-desc">
+                We sent a verification code to
+                <br>
+                <span
+                    id="displayEmail"
+                    class="otp-email"
+                ></span>
+            </div>
+
+        </div>
+
+        <input
+            id="otpInput"
+            class="input otp-input"
+            type="text"
+            maxlength="6"
+            inputmode="numeric"
+            placeholder="000000"
+            autocomplete="one-time-code"
+        >
+
+        <button
+            id="verifyBtn"
+            class="main-btn"
+            style="margin-top:15px;"
+            onclick="verifyOTP()"
+        >
+            <span id="verifyText">
+                Verify & Continue
+            </span>
+
+            <span
+                id="verifyLoader"
+                class="loader"
+            ></span>
+        </button>
+
+        <div class="resend-area">
+
+            <span id="timerText">
+                Resend OTP in 60s
+            </span>
+
+            <button
+                id="resendBtn"
+                class="resend-btn"
+                onclick="resendOTP()"
+                style="display:none;"
+            >
+                Resend OTP
+            </button>
+
+        </div>
+
+        <button
+            class="change-email"
+            onclick="backToForm()"
+        >
+            Back
+        </button>
+
+    </div>
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+    <div id="googleSection">
+
+        <div class="divider">
+            OR CONTINUE WITH
+        </div>
+
+        <button
+            id="googleBtn"
+            class="google-btn"
+            onclick="continueGoogle()"
+        >
+
+            <svg viewBox="0 0 48 48">
+                <path fill="#FFC107"
+                    d="M43.6 20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.7-5.7C34 6 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11.6 0 19.2-8.1 19.2-19.5 0-1.3-.1-2.3-.3-3.3z"/>
+                <path fill="#FF3D00"
+                    d="M6.3 14.7l6.6 4.8C14.7 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 3l5.7-5.7C34 6 29.3 4 24 4c-7.7 0-14.4 4.3-17.7 10.7z"/>
+                <path fill="#4CAF50"
+                    d="M24 44c5.1 0 9.6-1.7 13-4.7l-6-5.1C29.1 35.4 26.7 36 24 36c-5.3 0-9.8-3.4-11.4-8.1L6 33c3.3 6.5 10 11 18 11z"/>
+                <path fill="#1976D2"
+                    d="M43.6 20H24v8h11.3c-.8 2.4-2.3 4.5-4.3 6.2l6 5.1c3.5-3.2 6.2-8 6.2-14.8 0-1.5-.1-2.8-.4-4.5z"/>
+            </svg>
+
+            Continue with Google
+
+        </button>
+
+    </div>
+
+    <div class="terms">
+        By continuing, you agree to the Terms of Service and Privacy Policy.
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+    "https://wqduicdjhrlhckkahwjt.supabase.co/";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_zhMlESulGJdiiKA0MhKZPQ_I0VgenF8";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+const AFTER_LOGIN_PAGE =
+    "dashboard.html";
+
+let authMode = "login";
+
+let otpMode = "";
+
+let currentEmail = "";
+
+let resendTimer = null;
+
+let resendSeconds = 60;
+
+
+/* =========================
+   SWITCH LOGIN / SIGNUP
+========================= */
+
+function switchMode(mode){
+
+    authMode = mode;
+
+    clearMessage();
+
+    const loginTab =
+        document.getElementById("loginTab");
+
+    const signupTab =
+        document.getElementById("signupTab");
+
+    const signupFields =
+        document.getElementById("signupFields");
+
+    const confirmGroup =
+        document.getElementById("confirmPasswordGroup");
+
+    const passwordHint =
+        document.getElementById("passwordHint");
+
+    const title =
+        document.getElementById("mainTitle");
+
+    const subtitle =
+        document.getElementById("subtitle");
+
+    const mainBtnText =
+        document.getElementById("mainBtnText");
+
+    const otpLoginBtn =
+        document.getElementById("otpLoginBtn");
+
+
+    if(mode === "signup"){
+
+        signupTab.classList.add("active");
+        loginTab.classList.remove("active");
+
+        signupFields.style.display = "block";
+        confirmGroup.style.display = "block";
+        passwordHint.style.display = "block";
+
+        title.innerText = "Create account";
+
+        subtitle.innerText =
+            "Create your account with your details";
+
+        mainBtnText.innerText =
+            "Create Account";
+
+        otpLoginBtn.style.display =
+            "none";
+
+        document
+        .getElementById("passwordInput")
+        .setAttribute(
+            "autocomplete",
+            "new-password"
+        );
+
+    }else{
+
+        loginTab.classList.add("active");
+        signupTab.classList.remove("active");
+
+        signupFields.style.display = "none";
+        confirmGroup.style.display = "none";
+        passwordHint.style.display = "none";
+
+        title.innerText = "Welcome back";
+
+        subtitle.innerText =
+            "Login using your email and password";
+
+        mainBtnText.innerText =
+            "Login";
+
+        otpLoginBtn.style.display =
+            "block";
+
+        document
+        .getElementById("passwordInput")
+        .setAttribute(
+            "autocomplete",
+            "current-password"
+        );
+    }
+}
+
+
+/* =========================
+   SUBMIT
+========================= */
+
+function submitForm(){
+
+    if(authMode === "signup"){
+        signupWithPassword();
+    }else{
+        loginWithPassword();
+    }
+}
+
+
+/* =========================
+   SIGN UP
+========================= */
+
+async function signupWithPassword(){
+
+    clearMessage();
+
+    const name =
+        document
+        .getElementById("nameInput")
+        .value
+        .trim();
+
+    const mobile =
+        document
+        .getElementById("mobileInput")
+        .value
+        .replace(/\D/g,"");
+
+    const city =
+        document
+        .getElementById("cityInput")
+        .value
+        .trim();
+
+    const email =
+        document
+        .getElementById("emailInput")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const password =
+        document
+        .getElementById("passwordInput")
+        .value;
+
+    const confirmPassword =
+        document
+        .getElementById("confirmPasswordInput")
+        .value;
+
+
+    if(name.length < 2){
+        showMessage("Enter your full name.");
+        return;
+    }
+
+    if(mobile.length !== 10){
+        showMessage("Enter a valid 10-digit mobile number.");
+        return;
+    }
+
+    if(!city){
+        showMessage("Enter your city.");
+        return;
+    }
+
+    if(!isValidEmail(email)){
+        showMessage("Enter a valid email address.");
+        return;
+    }
+
+    if(password.length < 8){
+        showMessage("Password must contain at least 8 characters.");
+        return;
+    }
+
+    if(password !== confirmPassword){
+        showMessage("Password and Confirm Password do not match.");
+        return;
+    }
+
+    setMainLoading(true);
+
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+        await supabaseClient.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options:{
+                data:{
+                    full_name:name,
+                    name:name,
+                    mobile:"+91" + mobile,
+                    city:city
+                }
+            }
+
+        });
+
+
+        if(error){
+            throw error;
+        }
+
+
+        /*
+          If email confirmation is enabled,
+          Supabase usually returns user
+          but no active session yet.
+        */
+
+        if(
+            data.user &&
+            !data.session
+        ){
+
+            showMessage(
+                "Account created. Check your email and verify your account.",
+                "success"
+            );
+
+            return;
+        }
+
+
+        if(data.session){
+
+            showMessage(
+                "Account created successfully!",
+                "success"
+            );
+
+            setTimeout(()=>{
+                window.location.href =
+                    AFTER_LOGIN_PAGE;
+            },700);
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        showMessage(
+            error.message ||
+            "Unable to create account."
+        );
+
+    }
+    finally{
+
+        setMainLoading(false);
+    }
+}
+
+
+/* =========================
+   LOGIN PASSWORD
+========================= */
+
+async function loginWithPassword(){
+
+    clearMessage();
+
+    const email =
+        document
+        .getElementById("emailInput")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const password =
+        document
+        .getElementById("passwordInput")
+        .value;
+
+
+    if(!isValidEmail(email)){
+        showMessage("Enter a valid email address.");
+        return;
+    }
+
+    if(!password){
+        showMessage("Enter your password.");
+        return;
+    }
+
+
+    setMainLoading(true);
+
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+        await supabaseClient.auth.signInWithPassword({
+
+            email:email,
+            password:password
+
+        });
+
+
+        if(error){
+            throw error;
+        }
+
+
+        if(!data.session){
+            throw new Error(
+                "Unable to create login session."
+            );
+        }
+
+
+        showMessage(
+            "Login successful!",
+            "success"
+        );
+
+
+        setTimeout(()=>{
+
+            window.location.href =
+                AFTER_LOGIN_PAGE;
+
+        },600);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        let msg =
+            error.message ||
+            "Unable to login.";
+
+
+        if(
+            msg
+            .toLowerCase()
+            .includes("invalid login")
+        ){
+
+            msg =
+                "Incorrect email or password.";
+        }
+
+
+        showMessage(msg);
+
+    }
+    finally{
+
+        setMainLoading(false);
+    }
+}
+
+
+/* =========================
+   LOGIN OTP
+========================= */
+
+async function sendLoginOTP(){
+
+    clearMessage();
+
+    const email =
+        document
+        .getElementById("emailInput")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    if(!isValidEmail(email)){
+
+        showMessage(
+            "Enter your email first."
+        );
+
+        return;
+    }
+
+
+    try{
+
+        const {
+            error
+        } =
+        await supabaseClient.auth.signInWithOtp({
+
+            email:email,
+
+            options:{
+                shouldCreateUser:false
+            }
+
+        });
+
+
+        if(error){
+            throw error;
+        }
+
+
+        otpMode = "login";
+
+        currentEmail = email;
+
+        openOTPSection(email);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        showMessage(
+            error.message ||
+            "Unable to send OTP."
+        );
+    }
+}
+
+
+/* =========================
+   OTP SECTION
+========================= */
+
+function openOTPSection(email){
+
+    document.getElementById(
+        "mainForm"
+    ).style.display = "none";
+
+    document.getElementById(
+        "tabs"
+    ).style.display = "none";
+
+    document.getElementById(
+        "googleSection"
+    ).style.display = "none";
+
+    document.getElementById(
+        "otpSection"
+    ).style.display = "block";
+
+    document.getElementById(
+        "displayEmail"
+    ).innerText = email;
+
+    document.getElementById(
+        "otpInput"
+    ).value = "";
+
+    startTimer();
+}
+
+
+/* =========================
+   VERIFY OTP
+========================= */
+
+async function verifyOTP(){
+
+    clearMessage();
+
+    const otp =
+        document
+        .getElementById("otpInput")
+        .value
+        .replace(/\D/g,"");
+
+
+    if(otp.length !== 6){
+
+        showMessage(
+            "Enter the complete 6-digit OTP."
+        );
+
+        return;
+    }
+
+
+    setVerifyLoading(true);
+
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+        await supabaseClient.auth.verifyOtp({
+
+            email:currentEmail,
+
+            token:otp,
+
+            type:"email"
+
+        });
+
+
+        if(error){
+            throw error;
+        }
+
+
+        if(!data.session){
+
+            throw new Error(
+                "Unable to create session."
+            );
+        }
+
+
+        showMessage(
+            "Login successful!",
+            "success"
+        );
+
+
+        setTimeout(()=>{
+
+            window.location.href =
+                AFTER_LOGIN_PAGE;
+
+        },600);
+
+    }
+    catch(error){
+
+        showMessage(
+            error.message ||
+            "Invalid verification code."
+        );
+
+    }
+    finally{
+
+        setVerifyLoading(false);
+    }
+}
+
+
+/* =========================
+   RESEND OTP
+========================= */
+
+async function resendOTP(){
+
+    try{
+
+        const {
+            error
+        } =
+        await supabaseClient.auth.signInWithOtp({
+
+            email:currentEmail,
+
+            options:{
+                shouldCreateUser:false
+            }
+
+        });
+
+
+        if(error){
+            throw error;
+        }
+
+        showMessage(
+            "New OTP sent successfully.",
+            "success"
+        );
+
+        startTimer();
+
+    }
+    catch(error){
+
+        showMessage(
+            error.message ||
+            "Unable to resend OTP."
+        );
+    }
+}
+
+
+/* =========================
+   GOOGLE
+========================= */
+
+async function continueGoogle(){
+
+    clearMessage();
+
+    const redirectURL =
+        window.location.origin +
+        window.location.pathname;
+
+
+    const {
+        error
+    } =
+    await supabaseClient.auth.signInWithOAuth({
+
+        provider:"google",
+
+        options:{
+            redirectTo:redirectURL,
+            queryParams:{
+                prompt:"select_account"
+            }
+        }
+
+    });
+
+
+    if(error){
+
+        showMessage(
+            error.message
+        );
+    }
+}
+
+
+/* =========================
+   BACK
+========================= */
+
+function backToForm(){
+
+    clearMessage();
+
+    document.getElementById(
+        "otpSection"
+    ).style.display = "none";
+
+    document.getElementById(
+        "mainForm"
+    ).style.display = "block";
+
+    document.getElementById(
+        "tabs"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "googleSection"
+    ).style.display = "block";
+}
+
+
+/* =========================
+   SHOW PASSWORD
+========================= */
+
+function togglePassword(id,btn){
+
+    const input =
+        document.getElementById(id);
+
+    if(input.type === "password"){
+
+        input.type = "text";
+        btn.innerText = "HIDE";
+
+    }else{
+
+        input.type = "password";
+        btn.innerText = "SHOW";
+    }
+}
+
+
+/* =========================
+   TIMER
+========================= */
+
+function startTimer(){
+
+    if(resendTimer){
+        clearInterval(resendTimer);
+    }
+
+    resendSeconds = 60;
+
+    const timer =
+        document.getElementById("timerText");
+
+    const btn =
+        document.getElementById("resendBtn");
+
+    timer.style.display = "inline";
+    btn.style.display = "none";
+
+    timer.innerText =
+        "Resend OTP in 60s";
+
+
+    resendTimer =
+    setInterval(()=>{
+
+        resendSeconds--;
+
+        timer.innerText =
+            "Resend OTP in " +
+            resendSeconds +
+            "s";
+
+        if(resendSeconds <= 0){
+
+            clearInterval(resendTimer);
+
+            timer.style.display =
+                "none";
+
+            btn.style.display =
+                "inline";
+        }
+
+    },1000);
+}
+
+
+/* =========================
+   LOADERS
+========================= */
+
+function setMainLoading(status){
+
+    const button =
+        document.getElementById("mainBtn");
+
+    const text =
+        document.getElementById("mainBtnText");
+
+    const loader =
+        document.getElementById("mainLoader");
+
+    button.disabled = status;
+
+    if(status){
+
+        text.innerText =
+            authMode === "signup"
+            ? "Creating account..."
+            : "Logging in...";
+
+        loader.style.display =
+            "block";
+
+    }else{
+
+        text.innerText =
+            authMode === "signup"
+            ? "Create Account"
+            : "Login";
+
+        loader.style.display =
+            "none";
+    }
+}
+
+
+function setVerifyLoading(status){
+
+    const loader =
+        document.getElementById(
+            "verifyLoader"
+        );
+
+    const button =
+        document.getElementById(
+            "verifyBtn"
+        );
+
+    button.disabled = status;
+
+    loader.style.display =
+        status ? "block" : "none";
+}
+
+
+/* =========================
+   MESSAGES
+========================= */
+
+function showMessage(
+    text,
+    type="error"
+){
+
+    const box =
+        document.getElementById(
+            "message"
+        );
+
+    box.innerText = text;
+
+    box.className =
+        "message " + type;
+}
+
+
+function clearMessage(){
+
+    const box =
+        document.getElementById(
+            "message"
+        );
+
+    box.innerText = "";
+
+    box.className =
+        "message";
+}
+
+
+/* =========================
+   EMAIL
+========================= */
+
+function isValidEmail(email){
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(email);
+}
+
+
+/* MOBILE ONLY NUMBERS */
+
+document
+.getElementById("mobileInput")
+.addEventListener(
+    "input",
+    function(){
+
+        this.value =
+            this.value
+            .replace(/\D/g,"")
+            .slice(0,10);
+    }
+);
+
+
+/* OTP ONLY NUMBERS */
+
+document
+.getElementById("otpInput")
+.addEventListener(
+    "input",
+    function(){
+
+        this.value =
+            this.value
+            .replace(/\D/g,"")
+            .slice(0,6);
+    }
+);
+
+</script>
+
+</body>
+</html>
